@@ -1,2 +1,2 @@
-# Shotify_Challenge_2021
+# Shopify_Challenge_2021
 Front end project for Shopify
