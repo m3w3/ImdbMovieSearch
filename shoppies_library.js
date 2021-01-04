@@ -130,6 +130,23 @@ function processNominate(imdbID, button) {
 	if (nominatedMovies.has(imdbID)) {
 		nominatedMovies.delete(imdbID);
 		button.innerHTML = 'Nominate';
+<<<<<<< HEAD
+	}
+	else {
+		if (nominatedMovies.size < NOMINATION_LIMIT) {
+			nominatedMovies.add(imdbID);
+			// TODO: create the UI in under the nominated header UI
+			button.innerHTML = 'Remove';
+		} else {
+			// alert user to remove a nomination
+			// TODO: google "javascript popup with timer"
+			// https://www.w3schools.com/howto/howto_js_alert.asp
+			let limitAlert = document.createElement('p');
+			limitAlert.innerHTML = `Max of ${NOMINATION_LIMIT} nominations!\nRemove some!`;
+			button.after(limitAlert);
+		}
+=======
+>>>>>>> 6fa8f08aa703baaa62d48497888ca44a9ff28f19
 	}
 	else {
 		if (nominatedMovies.size < NOMINATION_LIMIT) {
