@@ -107,7 +107,12 @@ function generateResultsView(e) {
 		$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="200">`);
 		$cell.append(`<h4>${ithResult["Title"]} (${ithResult["Year"]})</h4>`);
 		$cell.append(`<p>Type: ${ithResult["Type"]}</p>`);
-		$cell.append(createNominateButton(ithResult["imdbID"], $cell));
+		// TODO: if not in nominated, create nomination button
+		if (nominatedMovies.has(imdbID)) { // create 'remove' button
+			;
+		} else { // create 'nominate' button
+			$cell.append(createNominateButton(ithResult["imdbID"], $cell));
+		} 
 		$cell.append(`<br></br>`);
 		$('#resultsDiv .listUI').append($cell);
 	}
@@ -126,16 +131,12 @@ function createNominateButton(imdbID, movieDiv){
 	return $nominateButton;
 }
 
-function processNominate(imdbID, button, movieDiv) {
-	if (nominatedMovies.has(imdbID)) {
-		nominatedMovies.delete(imdbID);
-		button.innerHTML = 'Nominate';
-	}
-	else {
+function processNominate(imdbID, button, movieDiv) {// add to nominated
 		if (nominatedMovies.size < NOMINATION_LIMIT) {
 			nominatedMovies.add(imdbID);
-			// TODO: create the UI under the nominated header UI
-			button.innerHTML = 'Remove';
+			movieDiv.clone().appendTo('#nominations .listUI');
+			$(`#nominations div[imdbid=${imdbID}] button`).html('Remove');
+			$(button).html('Remove');
 		} else {
 			// alert user to remove a nomination
 			// TODO: google "javascript popup with timer"
@@ -144,5 +145,4 @@ function processNominate(imdbID, button, movieDiv) {
 			limitAlert.innerHTML = `Max of ${NOMINATION_LIMIT} nominations!\nRemove some!`;
 			button.after(limitAlert);
 		}
-	}
 }
