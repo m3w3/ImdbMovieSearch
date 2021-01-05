@@ -85,7 +85,7 @@ function displayPageNumber(totalPages) {
 	while (totalPages > 0) {
 		let $cell = $('<td>', {'style': 'min-width: 30px; text-align: center;'});
 		$cell.html(`${j + 1}`);
-		console.log(`${$cell.html()}`)
+		// console.log(`${$cell.html()}`)
 		$cell.click(generateResultsView);
 		$pageNums.append($cell);
 		totalPages -= 1;
@@ -97,7 +97,7 @@ function displayPageNumber(totalPages) {
 }
 
 function generateResultsView(e) {
-	console.log(`Clicked on page ${this.innerHTML}`);
+	// console.log(`Clicked on page ${this.innerHTML}`);
 	// create the UI for all the movie results in this page number
 	let resultsOnCurrentPage = responseList[this.innerHTML - 1];
 	$('#resultsDiv .listUI').empty();
@@ -107,13 +107,13 @@ function generateResultsView(e) {
 		$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="200">`);
 		$cell.append(`<h4>${ithResult["Title"]} (${ithResult["Year"]})</h4>`);
 		$cell.append(`<p>Type: ${ithResult["Type"]}</p>`);
-		$cell.append(createNominateButton(ithResult["imdbID"]));
+		$cell.append(createNominateButton(ithResult["imdbID"], $cell));
 		$cell.append(`<br></br>`);
 		$('#resultsDiv .listUI').append($cell);
 	}
 }
 
-function createNominateButton(imdbID){
+function createNominateButton(imdbID, movieDiv){
 	let $nominateButton = $('<button>', {'type': 'button'});
 	if (nominatedMovies.has(imdbID)) {
 		$nominateButton.html('Remove');
@@ -121,12 +121,12 @@ function createNominateButton(imdbID){
 		$nominateButton.html('Nominate');
 	}
 	$nominateButton.click(function(e) {
-		processNominate(imdbID, this);
+		processNominate(imdbID, this, movieDiv);
 	});
 	return $nominateButton;
 }
 
-function processNominate(imdbID, button) {
+function processNominate(imdbID, button, movieDiv) {
 	if (nominatedMovies.has(imdbID)) {
 		nominatedMovies.delete(imdbID);
 		button.innerHTML = 'Nominate';
@@ -134,7 +134,7 @@ function processNominate(imdbID, button) {
 	else {
 		if (nominatedMovies.size < NOMINATION_LIMIT) {
 			nominatedMovies.add(imdbID);
-			// TODO: create the UI in under the nominated header UI
+			// TODO: create the UI under the nominated header UI
 			button.innerHTML = 'Remove';
 		} else {
 			// alert user to remove a nomination
