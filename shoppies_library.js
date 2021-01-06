@@ -148,7 +148,7 @@ function removeMovie(imdbID) {
 
 function nominateMovie(imdbID) {
 	if (nominatedMovies.size >= NOMINATION_LIMIT) {
-		//TODO: https://tutorialzine.com/2010/12/better-confirm-box-jquery-css3
+		//TODO: https://www.w3schools.com/howto/howto_js_alert.asp
 		confirm(`Maximum of ${NOMINATION_LIMIT} allowed.\nTry removing some nominations first.`);
 		return;
 	}
