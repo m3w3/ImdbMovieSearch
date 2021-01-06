@@ -13,7 +13,9 @@ $(function(){
 		event.preventDefault();
 		collectResult();
 	});
-	// TODO: generate nominate section, add a 'loading' screen when API is loading
+	// TODO: add a 'loading' screen when API is loading
+	// https://www.w3schools.com/howto/howto_css_loading_buttons.asp
+	// https://www.w3schools.com/howto/howto_css_loader.asp
 });
 
 
@@ -28,7 +30,6 @@ async function collectResult() {
 	let omdbResultSize = await getResultSize(movieEntered);
 	let noMoviesFound = (omdbResultSize == 0);
 	let totalPages = Math.ceil(omdbResultSize / 10);
-	// console.log(`Movie: ${movieEntered}, Pages: ${totalPages}`);
 	let i = 1;
 	while (omdbResultSize > 0) {
 		let batchSize = await callAPI(movieEntered, i);
@@ -37,9 +38,9 @@ async function collectResult() {
 	}
 	// what to display if no movie title matches
 	if (noMoviesFound) {
-		$('.listUI').empty();
+		$('#resultsDiv .listUI').empty();
 		$('#resultsDiv tr').empty();
-		$('.listUI').append(`<p>No movies match "${movieEntered}"!</p>`);
+		$('#resultsDiv .listUI').append(`<p>No movies match "${movieEntered}"!</p>`);
 	} else {
 		displayPageNumber(totalPages);
 	}
@@ -77,17 +78,15 @@ async function getResultSize(movieEntered) {
 
 function displayPageNumber(totalPages) {
 	// replace the old page body with a new and empty one
-	$('#resultsDiv table').empty();
-	let $pageNums = $('<tr>');
-	$('#resultsDiv table').append($pageNums);
+	$('.pagination').empty();
+	$('.pagination').append('<tr></tr>');
 	// append page number to each table cell
 	let j = 0;
 	while (totalPages > 0) {
 		let $cell = $('<td>', {'style': 'min-width: 30px; text-align: center;'});
 		$cell.html(`${j + 1}`);
-		// console.log(`${$cell.html()}`)
 		$cell.click(generateResultsView);
-		$pageNums.append($cell);
+		$('.pagination tr').append($cell);
 		totalPages -= 1;
 		j++;
 	}
@@ -96,53 +95,65 @@ function displayPageNumber(totalPages) {
 	}
 }
 
-function generateResultsView(e) {
-	// console.log(`Clicked on page ${this.innerHTML}`);
+function generateResultsView() {
 	// create the UI for all the movie results in this page number
-	let resultsOnCurrentPage = responseList[this.innerHTML - 1];
+	let resultsCurrentPage = responseList[this.innerHTML - 1];
 	$('#resultsDiv .listUI').empty();
-	for(let i = 0; i < resultsOnCurrentPage.length; i++) {
-		let ithResult = resultsOnCurrentPage[i];
-		let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${ithResult["imdbID"]}`});
-		$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="200">`);
-		$cell.append(`<h4>${ithResult["Title"]} (${ithResult["Year"]})</h4>`);
-		$cell.append(`<p>Type: ${ithResult["Type"]}</p>`);
-		// TODO: if not in nominated, create nomination button
-		if (nominatedMovies.has(imdbID)) { // create 'remove' button
-			;
-		} else { // create 'nominate' button
-			$cell.append(createNominateButton(ithResult["imdbID"], $cell));
-		} 
-		$cell.append(`<br></br>`);
-		$('#resultsDiv .listUI').append($cell);
+	for(let i = 0; i < resultsCurrentPage.length; i++) {
+		$('#resultsDiv .listUI').append(generateResultsMovie(resultsCurrentPage[i]));
 	}
 }
 
-function createNominateButton(imdbID, movieDiv){
-	let $nominateButton = $('<button>', {'type': 'button'});
-	if (nominatedMovies.has(imdbID)) {
-		$nominateButton.html('Remove');
+function generateResultsMovie(ithResult) {
+	let imdbID = ithResult["imdbID"];
+	let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${imdbID}`});
+	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="200">`);
+	$cell.append(`<h4>${ithResult["Title"]} (${ithResult["Year"]})</h4>`);
+	$cell.append(`<p>Type: ${ithResult["Type"]}</p>`);
+	if (nominatedMovies.has(imdbID)) { 
+		$cell.append(createRemoveButton(imdbID));
 	} else {
-		$nominateButton.html('Nominate');
-	}
-	$nominateButton.click(function(e) {
-		processNominate(imdbID, this, movieDiv);
+		$cell.append(createNominateButton(imdbID));
+	} 
+	$cell.append(`<br></br>`);
+	return $cell;
+}
+
+function createRemoveButton(imdbID) {
+	let $removeButton = $('<button>', {'type': 'button'});
+	$removeButton.html('Remove');
+	$removeButton.click(function(e){
+		removeMovie(imdbID);
+	});
+	return $removeButton;
+}
+
+function createNominateButton(imdbID){
+	let $nominateButton = $('<button>', {'type': 'button'});
+	$nominateButton.html('Nominate');
+	$nominateButton.click(function(e){
+		nominateMovie(imdbID);
 	});
 	return $nominateButton;
 }
 
-function processNominate(imdbID, button, movieDiv) {// add to nominated
-		if (nominatedMovies.size < NOMINATION_LIMIT) {
-			nominatedMovies.add(imdbID);
-			movieDiv.clone().appendTo('#nominations .listUI');
-			$(`#nominations div[imdbid=${imdbID}] button`).html('Remove');
-			$(button).html('Remove');
-		} else {
-			// alert user to remove a nomination
-			// TODO: google "javascript popup with timer"
-			// https://www.w3schools.com/howto/howto_js_alert.asp
-			let limitAlert = document.createElement('p');
-			limitAlert.innerHTML = `Max of ${NOMINATION_LIMIT} nominations!\nRemove some!`;
-			button.after(limitAlert);
-		}
+function removeMovie(imdbID) {
+	let removeButton = $(`#resultsDiv div[imdbid=${imdbID}] button`);
+	if (removeButton[0] != undefined) {
+		removeButton.replaceWith(createNominateButton(imdbID));
+	}
+	$(`#nominations div[imdbid=${imdbID}]`).remove();
+	nominatedMovies.delete(imdbID);
+}
+
+function nominateMovie(imdbID) {
+	if (nominatedMovies.size >= NOMINATION_LIMIT) {
+		//TODO: https://tutorialzine.com/2010/12/better-confirm-box-jquery-css3
+		confirm(`Maximum of ${NOMINATION_LIMIT} allowed.\nTry removing some nominations first.`);
+		return;
+	}
+	$(`#resultsDiv div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
+	$(`#resultsDiv div[imdbid=${imdbID}]`).clone().appendTo('#nominations .listUI');
+	$(`#nominations div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
+	nominatedMovies.add(imdbID);
 }
