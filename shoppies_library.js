@@ -107,15 +107,20 @@ function generateResultsView() {
 function generateResultsMovie(ithResult) {
 	let imdbID = ithResult["imdbID"];
 	let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${imdbID}`});
-	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="200">`);
-	$cell.append(`<h4>${ithResult["Title"]} (${ithResult["Year"]})</h4>`);
-	$cell.append(`<p>Type: ${ithResult["Type"]}</p>`);
+	// add movie's main image div
+	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="150">`);
+	// add movie's main info div
+	let $infoDiv = $('<div>', {'class': 'singleMovieInfo'});
+	$infoDiv.append(`<h4>${ithResult["Title"]}</h4>`);
+	$infoDiv.append(`<p>Year: ${ithResult["Year"]}</p>`);
+	$infoDiv.append(`<p>Type: ${ithResult["Type"]}</p>`);
 	if (nominatedMovies.has(imdbID)) { 
-		$cell.append(createRemoveButton(imdbID));
+		$infoDiv.append(createRemoveButton(imdbID));
 	} else {
-		$cell.append(createNominateButton(imdbID));
-	} 
-	$cell.append(`<br></br>`);
+		$infoDiv.append(createNominateButton(imdbID));
+	}
+	$cell.append($infoDiv);
+	$cell.append(`<br>`);
 	return $cell;
 }
 
