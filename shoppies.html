@@ -8,24 +8,22 @@
 	<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
  </head>
  <body>
- 	<h1>The Shoppies</h1>
-
- 	<div id="search">
+ 	<div class="left-body">
+ 		<h1>Movie Search</h1>
 	 	<form>
 	 		<input id="title" name="title" type="search" placeholder="Search movie title">
+			<button type="submit" class="searchButton"><strong>GO</strong></button>
 	 	</form>
- 	</div>
 
- 	<div class="pageItem" id="resultsDiv">
+ 	<div id="resultsDiv" hidden>
 		<h2>Results for {}</h2>
-		<table class="pagination">
-			<tr></tr>
-		</table>
+		<table class="pagination"><tr></tr></table>
 		<div class="listUI"></div>
  	</div>
+ 	</div>
 
- 	<div class="pageItem" id="nominations">
-		<h2>Nominations (Max 5)</h2>
+ 	<div id="nominations" hidden>
+		<h1>Nominations (Max 5)</h1>
 		<div class="listUI">
 		</div>
  	</div>
