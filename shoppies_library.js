@@ -2,27 +2,28 @@
 "use strict";
 const URL = 'https://www.omdbapi.com/?apikey=a23db7da&s=';
 const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
-const ALERT = 'https://commons.wikimedia.org/wiki/File:OOjs_UI_icon_alert-yellow.svg';
 const NOMINATION_LIMIT = 5;
 let responseList = []; // track response from page=1, 2, ... so on
 let nominatedMovies = new Set(); // track nominated movies, max = 5
 
+const searchForm = document.querySelector('form');
+const resultsDiv = document.querySelector('#resultsDiv');
+const resultTitleDiv = document.querySelector('#resultsDiv h2');
+const resultPages = document.querySelector('#resultsDiv table');
+const nominationsDiv = document.querySelector('#nominations');
+
 $(function(){
 	// generate API results UI when user initiates search
-	$("#search form").on('submit', function(event) {
+	$("form").on('submit', async function(event) {
 		event.preventDefault();
-		collectResult();
+		await collectResult();
+		resultsDiv.style.display = 'block';
+		nominationsDiv.style.display = 'block';
 	});
 	// TODO: add a 'loading' screen when API is loading
 	// https://www.w3schools.com/howto/howto_css_loading_buttons.asp
 	// https://www.w3schools.com/howto/howto_css_loader.asp
 });
-
-
-const searchForm = document.querySelector('#search form');
-const resultsDiv = document.querySelector('#resultsDiv');
-const resultTitleDiv = document.querySelector('#resultsDiv h2');
-const resultPages = document.querySelector('#resultsDiv table');
 
 async function collectResult() {
 	responseList = []; // reset the list of API collection
@@ -108,7 +109,7 @@ function generateResultsMovie(ithResult) {
 	let imdbID = ithResult["imdbID"];
 	let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${imdbID}`});
 	// add movie's main image div
-	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="150">`);
+	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="125">`);
 	// add movie's main info div
 	let $infoDiv = $('<div>', {'class': 'singleMovieInfo'});
 	$infoDiv.append(`<h4>${ithResult["Title"]}</h4>`);
