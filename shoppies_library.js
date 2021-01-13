@@ -3,6 +3,7 @@
 const URL = 'https://www.omdbapi.com/?apikey=a23db7da&s=';
 const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
 const NOMINATION_LIMIT = 5;
+let currSearchSize = 0;
 let responseList = []; // track response from page=1, 2, ... so on
 let nominatedMovies = new Set(); // track nominated movies, max = 5
 
@@ -10,15 +11,22 @@ const searchForm = document.querySelector('form');
 const resultsDiv = document.querySelector('#resultsDiv');
 const resultTitleDiv = document.querySelector('#resultsDiv h2');
 const resultPages = document.querySelector('#resultsDiv table');
-const nominationsDiv = document.querySelector('#nominations');
+const nominationsDiv = document.querySelector('.nominations');
 
 $(function(){
 	// generate API results UI when user initiates search
-	$("form").on('submit', async function(event) {
+	$('form').on('submit', async function(e) {
 		event.preventDefault();
+		currSearchSize = 0;
+		window.scrollTo(0, 0);
 		await collectResult();
-		resultsDiv.style.display = 'block';
-		nominationsDiv.style.display = 'block';
+		updateNominationCount();
+		[resultsDiv.style.display, nominationsDiv.style.display] = ['block', 'block'];
+	});
+
+	$('#cancel').on('click', function(e) {
+		event.preventDefault();
+		document.querySelector('#popup-banner').style.display = 'none';
 	});
 	// TODO: add a 'loading' screen when API is loading
 	// https://www.w3schools.com/howto/howto_css_loading_buttons.asp
@@ -29,7 +37,7 @@ async function collectResult() {
 	responseList = []; // reset the list of API collection
 	let movieEntered = searchForm.querySelector('input').value;
 	let omdbResultSize = await getResultSize(movieEntered);
-	let noMoviesFound = (omdbResultSize == 0);
+	currSearchSize = omdbResultSize;
 	let totalPages = Math.ceil(omdbResultSize / 10);
 	let i = 1;
 	while (omdbResultSize > 0) {
@@ -38,16 +46,20 @@ async function collectResult() {
 		i++;
 	}
 	// what to display if no movie title matches
-	if (noMoviesFound) {
+	if (currSearchSize == 0) {
 		$('#resultsDiv .listUI').empty();
 		$('#resultsDiv tr').empty();
 		$('#resultsDiv .listUI').append(`<p>No movies match "${movieEntered}"!</p>`);
 	} else {
-		displayPageNumber(totalPages);
+		displayPageNumber(totalPages); // most of the code in this file is in this part
 	}
 
-	// change the heading
-	$('#resultsDiv h2').html(`Results for "${movieEntered}"`);
+	if (currSearchSize == 1) {
+	// finally, change the heading
+		$('#resultsDiv h2').html(`1 result for "${movieEntered}":`);
+	} else {
+		$('#resultsDiv h2').html(`${currSearchSize} results for "${movieEntered}":`);
+	}
 }
 
 async function callAPI(movieEntered, i) {
@@ -79,8 +91,7 @@ async function getResultSize(movieEntered) {
 
 function displayPageNumber(totalPages) {
 	// replace the old page body with a new and empty one
-	$('.pagination').empty();
-	$('.pagination').append('<tr></tr>');
+	$('.pagination').empty().append('<tr></tr>');
 	// append page number to each table cell
 	let j = 0;
 	while (totalPages > 0) {
@@ -91,9 +102,7 @@ function displayPageNumber(totalPages) {
 		totalPages -= 1;
 		j++;
 	}
-	if ($('#resultsDiv td').first() != null){
-		$('#resultsDiv td').first().click();
-	}
+	if ($('#resultsDiv td').first() != null) $('#resultsDiv td').first().click();
 }
 
 function generateResultsView() {
@@ -109,12 +118,13 @@ function generateResultsMovie(ithResult) {
 	let imdbID = ithResult["imdbID"];
 	let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${imdbID}`});
 	// add movie's main image div
-	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; width="125">`);
+	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; height="200" width="150">`);
 	// add movie's main info div
 	let $infoDiv = $('<div>', {'class': 'singleMovieInfo'});
-	$infoDiv.append(`<h4>${ithResult["Title"]}</h4>`);
-	$infoDiv.append(`<p>Year: ${ithResult["Year"]}</p>`);
-	$infoDiv.append(`<p>Type: ${ithResult["Type"]}</p>`);
+	let infoHtml =	`<h4>${ithResult["Title"]}</h4>` + 
+					`<p>Year: ${ithResult["Year"]}</p>` + 
+					`<p>Type: ${ithResult["Type"]}</p>`;
+	$infoDiv.append(infoHtml);
 	if (nominatedMovies.has(imdbID)) { 
 		$infoDiv.append(createRemoveButton(imdbID));
 	} else {
@@ -130,6 +140,8 @@ function createRemoveButton(imdbID) {
 	$removeButton.html('Remove');
 	$removeButton.click(function(e){
 		removeMovie(imdbID);
+		updateNominationCount();
+		checkPopUpDisplay();
 	});
 	return $removeButton;
 }
@@ -139,6 +151,8 @@ function createNominateButton(imdbID){
 	$nominateButton.html('Nominate');
 	$nominateButton.click(function(e){
 		nominateMovie(imdbID);
+		updateNominationCount();
+		checkPopUpDisplay();
 	});
 	return $nominateButton;
 }
@@ -148,18 +162,32 @@ function removeMovie(imdbID) {
 	if (removeButton[0] != undefined) {
 		removeButton.replaceWith(createNominateButton(imdbID));
 	}
-	$(`#nominations div[imdbid=${imdbID}]`).remove();
+	$(`.nominations div[imdbid=${imdbID}]`).remove();
 	nominatedMovies.delete(imdbID);
 }
 
 function nominateMovie(imdbID) {
 	if (nominatedMovies.size >= NOMINATION_LIMIT) {
-		//TODO: https://www.w3schools.com/howto/howto_js_alert.asp
-		confirm(`Maximum of ${NOMINATION_LIMIT} allowed.\nTry removing some nominations first.`);
+		document.querySelector('#popup-banner').style.display = 'block';
 		return;
 	}
 	$(`#resultsDiv div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
-	$(`#resultsDiv div[imdbid=${imdbID}]`).clone().appendTo('#nominations .listUI');
-	$(`#nominations div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
+	$(`#resultsDiv div[imdbid=${imdbID}]`).clone().appendTo('.nominations .listUI');
+	$(`.nominations div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
 	nominatedMovies.add(imdbID);
+}
+
+function updateNominationCount() {
+	$('.countText').html(`Current count: ${nominatedMovies.size} out of 5`);
+}
+
+function checkPopUpDisplay() {
+	if (nominatedMovies.size == 5) {
+		document.querySelector('#popup-banner').style.display = 'block';
+		document.querySelector('#checkmark').style.display = 'inline-block';
+		window.scrollTo(0, 0);
+	} else {
+		document.querySelector('#popup-banner').style.display = 'none';
+		document.querySelector('#checkmark').style.display = 'none';
+	}
 }
