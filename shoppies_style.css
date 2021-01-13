@@ -5,88 +5,177 @@ body {
 	font-family: 'Open Sans', sans-serif;
 }
 
+/* the two main column divs */ 
+.left-body {
+	display:inline-block;
+	margin: 2% 0% 2% 7%;
+	width: 35%;
+	box-sizing:border-box;
+	text-align:left;
+}
+
+.nominations {
+	margin: 2% 13% 2% 0%;
+	width: 35%;
+	box-sizing:border-box;
+	text-align:left;
+	float:right;
+	top: 0;;
+}
+
+/* the search section + title headers*/
+h1 {
+	font-family: Georgia, serif;
+	display: inline-block;
+	text-align: left;
+	font-size: 3em;
+	font-weight: 1000;
+	letter-spacing: -0.03em;
+}
+
 form {
 	position: left;
+	width: 109%;
 	margin-bottom: 10%;
 	display: flex;
 	position: sticky;
 	top: 0;
 }
 
-h1 {
-  display: block;
-  text-align: left;
-  font-size: 2em;
-  font-weight: 1000;
-  letter-spacing: -0.03em;
+.searchButton {
+	width: 45px;
+	height: 36px;
+	border: 0px solid #00B4CC;
+	background: #00B4CC;
+	text-align: center;
+	color: #fff;
+	border-radius: 0px 10px 10px 0px;
+	cursor: pointer;
+	font-size: 20px;
+	display: inline-block;
+}
+
+#title { /* search input field */
+	height: 36px;
+	width: 105%;
+	border: 3px solid #00B4CC;
+	border-right: none;
+	padding: 5px;
+	border-radius: 10px 0px 0px 10px;
+	outline: none;
+	font-size: 18px;
+}
+
+#title:focus{ /* search input field (when focused) */
+	background-color: #ccffff;
+}
+
+/* the search results section */
+td {
+    border: 3px solid #80aaff;
+    border-radius: 50%;
+    background-color: #e6ffff;
+}
+
+td:hover {
+	cursor: pointer;
+}
+
+.singleMovie {
+    margin: 2% 2% 3% 0%;
+    border: 10px solid white;
+    border-radius: 25px;
+    width: 102%;
+    padding: 2% 2% 2% 5%;
+    background-color: #e6ffff;
 }
 
 .singleMovie img {
 	display: inline-block;
+    border: 2px solid darkgrey;
+    border-radius: 5%;
+    background-color: white
 }
 
-.singleMovie .singleMovieInfo {
+.singleMovieInfo {
+	padding: 2%;
 	display: inline-block;
+	vertical-align: top;
+	margin-left: 5%;
 }
 
-.left-body {
-	display:inline-block;
-	margin: 2% 0% 2% 15%;
-	width: 30%;
-	box-sizing:border-box;
-	text-align:left;
+.singleMovieInfo h4 {
+	margin: 0%;
+	font-family: Georgia, serif;
+	letter-spacing: -0.02em;
+	text-decoration: underline;
+	color: #00B4CC;
 }
 
-
-#nominations {
-	margin: 2% 15% 2% 0%;
-	width: 30%;
-	box-sizing:border-box;
-	text-align:left;
-	float:right;
-	position: sticky;
-	top: 0;;
+.singleMovieInfo p {
+	font-style: italic;
+	letter-spacing: -0.01em;
 }
 
-
-.listUI {
-	border-radius: 5px;
-	border: 3px solid #00B4CC;
-	padding: 2%;
+.singleMovieInfo button {
+	margin-top: 10px;
+	padding: 10px;
+	font-size:14px;
+	width: 80px;
+	color:#fff;
+	border: solid 1px #186f8f;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgb(44,160,202)),
+		color-stop(1, rgb(62,184,229)));
+	box-shadow: inset 0px 1px 0px #7fd2f1, 0px 1px 0px #fff;
+	border-radius: 10px;
 }
 
-.singleMovie {
-	margin: 5% 2% 5% 2%;
-	border: 3px solid #00B4CC;
-	border-radius: 5px;
-	padding: 2%;
-
+.singleMovieInfo button:hover {
+	cursor: pointer;
 }
 
-.searchButton {
-  width: 45px;
-  height: 36px;
-  border: 0px solid #00B4CC;
-  background: #00B4CC;
-  text-align: center;
-  color: #fff;
-  border-radius: 0 5px 5px 0;
-  cursor: pointer;
-  font-size: 20px;
-  display: inline-block;
+/* the nominations header section */
+#checkmark {
+	position: relative;
+	left: 5%;
+	display: inline-block;
+	width: 30px;
+	transform: translate(0%, 10%);
 }
 
-#title {
-  height: 36px;
-  width: 100%;
-  border: 3px solid #00B4CC;
-  border-right: none;
-  padding: 5px;
-  border-radius: 5px 0 0 5px;
-  outline: none;
-  font-size: 18px;
+.countText {
+	margin: 0% 0% 1% 0%;
 }
 
-#title:focus{
-  background-color: #ccffff;
+/* nominations popup banner */
+#popup-banner p {
+	display: inline-block;
+	text-align: left;
+	margin: 0%;
+	font-family: 'Trebuchet MS', sans-serif;
+}
+
+.nominations #popup-banner {
+	margin: 0% 0% 1% 0%;
+    width: 108%;
+	padding: 1% 0% 1% 0%;
+	border-radius: 15% 15% 0% 0%;
+	text-align: center;
+	background-color: #ccffcc;
+}
+
+#cancel {
+	position: relative;
+	left: 33%;
+	display: inline-block;
+	width: 15px;
+	transform: translate(25%, 20%);
+}
+
+#cancel:hover {
+	cursor: pointer;
 }
