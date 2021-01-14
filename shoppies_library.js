@@ -2,9 +2,11 @@
 "use strict";
 const URL = 'https://www.omdbapi.com/?apikey=a23db7da&s=';
 const NO_IMAGE = 'https://upload.wikimedia.org/wikipedia/commons/a/ac/No_image_available.svg';
+const IMDB_URL = 'https://www.imdb.com/title/';
 const NOMINATION_LIMIT = 5;
+const MAX_PAGES = 20;
 let currSearchSize = 0;
-let responseList = []; // track response from page=1, 2, ... so on
+let responseList = []; // track response from page=1, 2, ... so on. Max of 200 movies.
 let nominatedMovies = new Set(); // track nominated movies, max = 5
 
 const searchForm = document.querySelector('form');
@@ -79,11 +81,9 @@ async function getResultSize(movieEntered) {
 	if (searchResponse.ok) {
 		let movieParsed = await searchResponse.json();
 		if (movieParsed['Response'] == 'True') {
-			return parseInt(movieParsed['totalResults']);
+			return Math.min(10*MAX_PAGES, parseInt(movieParsed['totalResults']));
 		}
-		else {
-			return 0;
-		}
+		return 0;
 	} else {
 		alert("Error: " + searchResponse.status);
 	}
@@ -95,7 +95,7 @@ function displayPageNumber(totalPages) {
 	// append page number to each table cell
 	let j = 0;
 	while (totalPages > 0) {
-		let $cell = $('<td>', {'style': 'min-width: 30px; text-align: center;'});
+		let $cell = $('<td>');
 		$cell.html(`${j + 1}`);
 		$cell.click(generateResultsView);
 		$('.pagination tr').append($cell);
@@ -118,17 +118,17 @@ function generateResultsMovie(ithResult) {
 	let imdbID = ithResult["imdbID"];
 	let $cell = $('<div>', {'class': 'singleMovie', 'imdbID': `${imdbID}`});
 	// add movie's main image div
-	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}'; height="200" width="150">`);
+	$cell.append(`<img src=${ithResult["Poster"]} onerror=this.src='${NO_IMAGE}';>`);
 	// add movie's main info div
 	let $infoDiv = $('<div>', {'class': 'singleMovieInfo'});
-	let infoHtml =	`<h4>${ithResult["Title"]}</h4>` + 
+	let infoHtml =	`<h4><a href=${IMDB_URL}${imdbID}/ target="_blank">${ithResult["Title"]}</a></h4>` + 
 					`<p>Year: ${ithResult["Year"]}</p>` + 
 					`<p>Type: ${ithResult["Type"]}</p>`;
 	$infoDiv.append(infoHtml);
-	if (nominatedMovies.has(imdbID)) { 
-		$infoDiv.append(createRemoveButton(imdbID));
+	if (nominatedMovies.has(imdbID)) {
+		$infoDiv.append(createNominateButton(imdbID, 'disabledButton'));
 	} else {
-		$infoDiv.append(createNominateButton(imdbID));
+		$infoDiv.append(createNominateButton(imdbID, 'nominateButton'));
 	}
 	$cell.append($infoDiv);
 	$cell.append(`<br>`);
@@ -136,7 +136,7 @@ function generateResultsMovie(ithResult) {
 }
 
 function createRemoveButton(imdbID) {
-	let $removeButton = $('<button>', {'type': 'button'});
+	let $removeButton = $('<button>', {'type': 'button', 'id': 'removeButton'});
 	$removeButton.html('Remove');
 	$removeButton.click(function(e){
 		removeMovie(imdbID);
@@ -146,8 +146,13 @@ function createRemoveButton(imdbID) {
 	return $removeButton;
 }
 
-function createNominateButton(imdbID){
-	let $nominateButton = $('<button>', {'type': 'button'});
+function createNominateButton(imdbID, buttonStyle){
+	let $nominateButton = $('<button>', {'type': 'button', 'id': `${buttonStyle}`});
+	if (buttonStyle == 'disabledButton') {
+		$nominateButton.prop("disabled", true);
+	} else {
+		$nominateButton.prop("disabled", false);
+	}
 	$nominateButton.html('Nominate');
 	$nominateButton.click(function(e){
 		nominateMovie(imdbID);
@@ -160,7 +165,7 @@ function createNominateButton(imdbID){
 function removeMovie(imdbID) {
 	let removeButton = $(`#resultsDiv div[imdbid=${imdbID}] button`);
 	if (removeButton[0] != undefined) {
-		removeButton.replaceWith(createNominateButton(imdbID));
+		removeButton.replaceWith(createNominateButton(imdbID, 'nominateButton'));
 	}
 	$(`.nominations div[imdbid=${imdbID}]`).remove();
 	nominatedMovies.delete(imdbID);
@@ -171,7 +176,7 @@ function nominateMovie(imdbID) {
 		document.querySelector('#popup-banner').style.display = 'block';
 		return;
 	}
-	$(`#resultsDiv div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
+	$(`#resultsDiv div[imdbid=${imdbID}] button`).replaceWith(createNominateButton(imdbID, 'disabledButton'));
 	$(`#resultsDiv div[imdbid=${imdbID}]`).clone().appendTo('.nominations .listUI');
 	$(`.nominations div[imdbid=${imdbID}] button`).replaceWith(createRemoveButton(imdbID));
 	nominatedMovies.add(imdbID);
