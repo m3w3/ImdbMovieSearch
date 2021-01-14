@@ -1,2 +1,2 @@
-# Shopify_Challenge_2021
-Front end project for Shopify
+# Imdb Movie Search
+Using OMDb API: https://www.omdbapi.com/
