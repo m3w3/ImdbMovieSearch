@@ -51,8 +51,8 @@ form {
 	color: #fff;
 	border-radius: 0px 10px 10px 0px;
 	cursor: pointer;
-	font-size: 20px;
 	display: inline-block;
+	font-size: 17px;
 }
 
 #title { /* search input field */
@@ -72,13 +72,13 @@ form {
 
 /* the search results section */
 td {
-    border: 3px solid #80aaff;
+    border: 2px solid #80aaff;
     border-radius: 50%;
     background-color: #e6ffff;
-}
-
-td:hover {
-	cursor: pointer;
+    text-align:center;
+    min-width:25px;
+    padding:2px;
+    cursor: pointer;
 }
 
 .singleMovie {
@@ -95,6 +95,8 @@ td:hover {
     border: 2px solid darkgrey;
     border-radius: 5%;
     background-color: white
+    height: 200px;
+    width: 150px;
 }
 
 .singleMovieInfo {
@@ -110,6 +112,7 @@ td:hover {
 	letter-spacing: -0.02em;
 	text-decoration: underline;
 	color: #00B4CC;
+	cursor: pointer;
 }
 
 .singleMovieInfo p {
@@ -117,26 +120,53 @@ td:hover {
 	letter-spacing: -0.01em;
 }
 
+/* The nominate/remove/disabled button styles */
 .singleMovieInfo button {
 	margin-top: 10px;
 	padding: 10px;
 	font-size:14px;
 	width: 80px;
-	color:#fff;
+	color: #fff;
+	border-radius: 10px;
+}
+
+#nominateButton {
 	border: solid 1px #186f8f;
 	background-image: -webkit-gradient(
 		linear,
 		left bottom,
 		left top,
-		color-stop(0, rgb(44,160,202)),
-		color-stop(1, rgb(62,184,229)));
+		color-stop(0, #2ba0ca),
+		color-stop(1, #3eb8e5));
 	box-shadow: inset 0px 1px 0px #7fd2f1, 0px 1px 0px #fff;
-	border-radius: 10px;
-}
-
-.singleMovieInfo button:hover {
 	cursor: pointer;
 }
+
+#disabledButton {
+	border: solid 1px #4c585d;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, #6e8087),
+		color-stop(1, #86969c));
+	box-shadow: inset 0px 1px 0px #b0bbbf, 0px 1px 0px #fff;
+	cursor: not-allowed;
+}
+
+
+#removeButton {
+	border: solid 1px #901818;
+	background-image: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, #b33d2b),
+		color-stop(1, #e84135));
+	box-shadow: inset 0px 1px 0px #f17e7e, 0px 1px 0px #fff;
+	cursor: pointer;
+}
+
 
 /* the nominations header section */
 #checkmark {
@@ -174,8 +204,5 @@ td:hover {
 	display: inline-block;
 	width: 15px;
 	transform: translate(25%, 20%);
-}
-
-#cancel:hover {
 	cursor: pointer;
 }
